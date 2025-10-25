@@ -1,0 +1,1365 @@
+<!doctype html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>টুলস — Shamim Vaiya</title>
+    <link href="https://fonts.maateen.me/solaiman-lipi/font.css" rel="stylesheet">
+
+    <style>
+        /* ======================================
+         === ডিজাইন সিস্টেম (CSS ভেরিয়েবল) ===
+        ====================================== */
+        :root {
+            --bg-dark: #0f0c29;
+            --bg-light: #24243e;
+            --card-bg: #1a1a2f;
+            --card-bg-transparent: rgba(26, 26, 47, 0.8);
+            --text-light: #f0f0f0;
+            --text-muted: #a0a0b0;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glow-1: #00c6ff;
+            --glow-2: #9240ff;
+            --btn-grad: linear-gradient(90deg, #3a7bd5, #00c6ff);
+            --btn-grad-hover: linear-gradient(90deg, #4a8bdc, #10d1ff);
+            --drawer-bg: #101022;
+            --success-glow: #00ff87;
+            --error-glow: #ff4757;
+
+            /* লাইট মোড ভেরিয়েবল */
+            --lm-bg: #f0f2f5;
+            --lm-card-bg: #ffffff;
+            --lm-text: #212121;
+            --lm-text-muted: #5f6368;
+            --lm-border: rgba(0, 0, 0, 0.1);
+        }
+
+        /* CSS Properties for the animated glow effect */
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes rotate {
+            0% { --angle: 0deg; }
+            100% { --angle: 360deg; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) }
+            to { opacity: 1; transform: scale(1) }
+        }
+
+
+        /* ======================================
+         === গ্লোবাল স্টাইল ===
+        ====================================== */
+        body {
+            font-family: 'SolaimanLipi', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        html.light body {
+            background: var(--lm-bg);
+            color: var(--lm-text);
+        }
+
+        /* ======================================
+         === হেডার এবং ড্রয়ার মেনু ===
+        ====================================== */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 40px auto;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-back-btn {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            color: inherit;
+            background: none;
+            border: none;
+        }
+
+        .header-back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        html.light .header-back-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .header-tool-name {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .hamburger-menu {
+            font-size: 2.5rem;
+            cursor: pointer;
+            user-select: none;
+            padding: 10px;
+        }
+
+        /* ড্রয়ার মেনু */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 199;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .drawer-menu {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            height: 100%;
+            background: var(--drawer-bg);
+            z-index: 200;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+            transition: right 0.3s ease-in-out, background 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .drawer-menu.open {
+            right: 0;
+        }
+
+        html.light .drawer-menu {
+            background: var(--lm-card-bg);
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .drawer-profile {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .drawer-profile img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--glow-1);
+            object-fit: cover;
+        }
+
+        .drawer-profile h3 {
+            margin: 10px 0 0;
+            color: var(--text-light);
+        }
+        html.light .drawer-profile h3 { color: var(--lm-text); }
+
+
+        .drawer-profile p {
+            margin: 5px 0 20px 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        html.light .drawer-profile p { color: var(--lm-text-muted); }
+
+
+        .drawer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .drawer-links a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .drawer-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--glow-1);
+        }
+
+        .drawer-links a svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        html.light .drawer-links a {
+            background: rgba(0, 0, 0, 0.03);
+            color: var(--lm-text-muted);
+        }
+
+        html.light .drawer-links a:hover {
+            background: rgba(0, 0, 0, 0.07);
+            color: var(--glow-2);
+        }
+
+        /* ======================================
+         === কাস্টম নোটিফিকেশন Modal ===
+        ====================================== */
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 299;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .notification-modal {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            animation: modalFadeIn 0.3s ease forwards;
+        }
+
+        html.light .notification-modal {
+            background: var(--lm-card-bg);
+            border-color: var(--lm-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .notification-modal h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+        }
+
+        .notification-modal p {
+            margin: 0 0 20px 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        html.light .notification-modal p { color: var(--lm-text-muted); }
+
+
+        .notification-modal .btn-primary {
+            width: 100%;
+        }
+
+        .notification-modal.error h3 {
+            color: var(--error-glow);
+        }
+
+        .notification-modal.success h3 {
+            color: var(--success-glow);
+        }
+
+
+        /* ======================================
+         === হাব পেজ (কার্ড) ===
+        ====================================== */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #hubPage {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .card-glow {
+            position: relative;
+            width: 300px;
+            height: 350px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            padding: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .card-glow:hover {
+            transform: scale(1.03);
+        }
+
+        .card-glow::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            z-index: 1;
+            background: conic-gradient(
+                from var(--angle),
+                transparent 20%,
+                var(--glow-1),
+                var(--glow-2),
+                transparent 80%
+            );
+            animation: rotate 6s linear infinite;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 24px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        html.light .card-glow, html.light .card-content {
+             background: var(--lm-card-bg);
+        }
+
+        .card-content h2 {
+            font-size: 2rem;
+            margin: 16px 0 8px 0;
+            pointer-events: none;
+        }
+
+        .card-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            pointer-events: none;
+        }
+        html.light .card-content p { color: var(--lm-text-muted); }
+
+        .select-btn {
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            background: var(--btn-grad);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.2);
+            pointer-events: none;
+        }
+        html.light .select-btn { box-shadow: 0 4px 15px rgba(0, 100, 200, 0.2); }
+
+        /* ======================================
+         === টুল পেজ (জেনারেল) ===
+        ====================================== */
+        .tool-page {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tool-container {
+            background: var(--card-bg-transparent);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        html.light .tool-container {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: var(--lm-border);
+        }
+
+        .tool-container h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+
+        .converter-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .converter-col label {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        html.light .converter-col label { color: var(--lm-text-muted); }
+
+
+        .styled-textarea {
+            font-family: inherit;
+            font-size: 1rem;
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-light);
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        html.light .styled-textarea {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--lm-border);
+            color: var(--lm-text);
+        }
+        .styled-textarea:focus {
+            outline: none;
+            border-color: var(--glow-1);
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.2);
+        }
+
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--btn-grad);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(0, 198, 255, 0.2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--btn-grad-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 198, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        html.light .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--lm-border);
+            color: var(--lm-text-muted);
+        }
+
+        html.light .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+
+        /* Select Dropdown */
+        .styled-select {
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        html.light .styled-select {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--lm-border);
+            color: var(--lm-text-muted);
+        }
+        .styled-select:focus { outline: none; border-color: var(--glow-1); }
+
+        .status-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+        html.light .status-text { color: var(--lm-text-muted); }
+
+
+        /* API Area */
+        .api-area {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        html.light .api-area {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: var(--lm-border);
+        }
+
+
+        .api-area label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        html.light .api-area label { color: var(--lm-text-muted); }
+
+
+        .api-input-group {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .styled-input {
+            font-family: inherit;
+            flex: 1;
+            padding: 10px;
+            padding-left: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+        }
+        .styled-input:focus {
+             outline: none;
+             border-color: var(--glow-1);
+        }
+
+        html.light .styled-input {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: var(--lm-border);
+            color: var(--lm-text);
+        }
+
+        .toggle-visibility-btn {
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        html.light .toggle-visibility-btn { color: var(--lm-text-muted); }
+
+        .toggle-visibility-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+
+        /* কাস্টম চেকবক্স (Toggle) */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+        html.light .switch-container { color: var(--lm-text-muted); }
+
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        html.light .slider { background-color: #ccc; }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--glow-1);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* --- Helper Classes --- */
+        .hidden { display: none !important; }
+        .ml-auto { margin-left: auto; }
+        .mt-4 { margin-top: 20px; }
+        .mb-4 { margin-bottom: 20px; }
+
+    </style>
+</head>
+<body>
+    <!-- নোটিফিকেশন সিস্টেম -->
+    <div id="notificationOverlay" class="notification-overlay">
+        <div id="notificationModal" class="notification-modal">
+            <h3 id="notificationTitle">সফল!</h3>
+            <p id="notificationMessage">আপনার কাজ সফলভাবে সম্পন্ন হয়েছে।</p>
+            <button id="notificationCloseBtn" class="btn btn-primary">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <!-- ড্রয়ার মেনু -->
+    <div id="drawerOverlay" class="drawer-overlay"></div>
+    <aside id="drawerMenu" class="drawer-menu">
+        <div class="drawer-profile">
+            <img id="adminImage" src="https://via.placeholder.com/100" alt="Admin Photo">
+            <h3>Shamim Vaiya</h3>
+            <p>Cyber Security Expert<br>Full Stack Devloper</p>
+        </div>
+        <nav class="drawer-links">
+            <!-- Social Links -->
+            <a href="https://www.facebook.com/AnonymousCyberTeamOfficial" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.8C10.44 7.3 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96C18.34 21.21 22 17.06 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg>
+                <span>Facebook</span>
+            </a>
+            <a href="https://www.instagram.com/shamim.vaiya/" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4A3.6,3.6 0 0,0 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6A3.6,3.6 0 0,0 16.4,4H7.6M17.2,6A1.2,1.2 0 0,1 16,7.2A1.2,1.2 0 0,1 14.8,6A1.2,1.2 0 0,1 16,4.8A1.2,1.2 0 0,1 17.2,6M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" /></svg>
+                <span>Instagram</span>
+            </a>
+            <a href="https://wa.me/+8801540580575" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 12C2.13 13.8 2.58 15.51 3.34 17.03L2 22L7.19 20.73C8.66 21.41 10.28 21.8 12.04 21.8C17.5 21.8 21.95 17.35 21.95 11.9C21.95 6.45 17.5 2 12.04 2M12.04 3.65C16.56 3.65 20.3 7.39 20.3 11.9C20.3 16.41 16.56 20.15 12.04 20.15C10.46 20.15 8.98 19.74 7.7 19.01L7.29 18.78L4.8 19.4L5.48 17.01L5.25 16.58C4.46 15.24 4 13.62 4 11.9C4 7.39 7.74 3.65 12.04 3.65M16.53 14.33C16.31 14.22 15.26 13.7 15.05 13.61C14.84 13.53 14.68 13.48 14.52 13.7C14.37 13.92 13.93 14.41 13.79 14.57C13.65 14.73 13.5 14.76 13.29 14.64C13.08 14.53 12.24 14.24 11.23 13.34C10.42 12.63 9.87 11.75 9.72 11.53C9.57 11.31 9.68 11.19 9.8 11.07C9.91 10.95 10.04 10.79 10.19 10.61C10.34 10.42 10.39 10.31 10.47 10.14C10.55 9.97 10.5 9.81 10.42 9.7C10.34 9.59 9.88 8.46 9.7 7.97C9.52 7.48 9.34 7.55 9.21 7.54C9.08 7.53 8.92 7.53 8.76 7.53C8.6 7.53 8.35 7.59 8.14 7.81C7.93 8.03 7.4 8.5 7.4 9.68C7.4 10.86 8.16 12.01 8.31 12.17C8.47 12.33 9.9 14.69 12.23 15.7C14.55 16.71 14.55 16.34 14.91 16.3C15.27 16.26 16.31 15.7 16.53 15.08C16.74 14.46 16.74 13.97 16.66 13.86C16.58 13.75 16.44 13.7 16.22 13.59Z"/></svg>
+                <span>WhatsApp</span>
+            </a>
+            <a href="https://t.me/Shamim_Vaiya" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.435 2.582a1.49 1.49 0 0 0-1.89-.328L2.07 9.42c-1.48.573-1.434 2.43.064 2.87l5.42 1.693c.18.056.324.16.425.308l2.84 4.018c.58.82 1.79.43 2.06-.55l3.22-11.52c.26-1.04-.5-1.96-1.56-1.655Z"/></svg>
+                <span>Telegram</span>
+            </a>
+            <a href="https://github.com/Anonymous-Cyber-Team" target="_blank" rel="noopener noreferrer">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.21.68-.48v-1.69c-2.78.6-3.37-1.34-3.37-1.34-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.57.69.48C19.13 20.16 22 16.41 22 12A10 10 0 0 0 12 2Z"/></svg>
+                <span>GitHub</span>
+            </a>
+            <!-- থিম টগলার -->
+            <div style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <label class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span id="themeToggleLabel">লাইট মোড</span>
+                </label>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- হেডার -->
+    <header class="app-header">
+        <div class="header-left">
+            <button id="headerBackBtn" class="header-back-btn hidden">←</button>
+            <h1 id="headerTitle" class="header-title">টুলস</h1>
+            <h2 id="headerToolName" class="header-tool-name hidden"></h2>
+        </div>
+        <div id="openDrawerBtn" class="hamburger-menu">☰</div>
+    </header>
+
+    <!-- হাব পেজ -->
+    <main id="hubPage">
+        <div id="navToConverter" class="card-glow">
+            <div class="card-content">
+                <h2>বাংলিশ কনভার্টার</h2>
+                <p>বাংলিশ থেকে বাংলা</p>
+                <button class="select-btn">SELECT</button>
+            </div>
+        </div>
+        <div id="navToTranslator" class="card-glow">
+            <div class="card-content">
+                <h2>অনলাইন ট্রান্সলেটর</h2>
+                <p>অনুবাদ করুন যেকোন ভাষায়</p>
+                <button class="select-btn">SELECT</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- বাংলিশ কনভার্টার পেজ -->
+    <main id="converterPage" class="tool-page hidden">
+        <div class="tool-container">
+            <div class="controls mb-4">
+                <button id="offlineBtn" class="btn btn-primary">Offline (Avro)</button>
+                <button id="onlineBtn" class="btn btn-secondary">Online (Gemini)</button>
+            </div>
+            <div id="apiArea" class="api-area hidden">
+                <label>Gemini API Key (শুধু অনলাইন মোডের জন্য)</label>
+                <div class="api-input-group">
+                    <input id="apiKey" type="password" placeholder="আপনার Gemini API কী এখানে পেস্ট করুন" class="styled-input">
+                    <button type="button" id="toggleApiVisibilityBtn" class="toggle-visibility-btn" aria-label="Toggle API Key Visibility">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16.5c4.3 0 8.1-2.6 10.3-6.5-.1-.4-.3-.7-.5-1C19.6 4.6 15.8 2 12 2S4.4 4.6 2.2 9c-.2.3-.4.6-.5 1 .1.2.2.4.3.6L4.5 14l1.6-1.6c-.2-.5-.3-1-.3-1.6 0-2.8 2.2-5 5-5 .6 0 1.2.1 1.7.4L14.4 8 16 6.4c-.7-.3-1.4-.4-2.2-.4-3.3 0-6.1 2.1-7.5 5.1C7.2 13.6 9.5 15 12 15c.6 0 1.2-.1 1.7-.2L12 16.5zm8.1-7.2c-.4.8-1 1.5-1.7 2.1l1.4 1.4c1.1-.9 2-2 2.6-3.2-.2-.4-.4-.7-.7-.9zM12 9c-1.7 0-3 1.3-3 3 0 .4.1.8.2 1.1l1.1-1.1c.3-.3.6-.4 1-.4.4 0 .8.2 1.1.5l1.5 1.5c.2-.3.3-.6.3-1 0-1.7-1.3-3-3-3z"/><path fill="none" d="M0 0h24v24H0z"/><path d="M2.3 3.7L3.7 2.3 21.7 20.3 20.3 21.7z"/></svg>
+                    </button>
+                    <button id="saveKeyBtn" class="btn btn-secondary">Save</button>
+                    <button id="clearKeyBtn" class="btn btn-secondary">Clear</button>
+                </div>
+            </div>
+            <div class="converter-grid mt-4">
+                <div class="converter-col">
+                    <label for="inputText">Input</label>
+                    <textarea id="inputText" class="styled-textarea" placeholder="এখানে বাংলায় বা Banglish-এ লিখুন..."></textarea>
+                    <div class="controls">
+                        <select id="direction" class="styled-select">
+                            <option value="banglish-to-bangla">Banglish → বাংলা</option>
+                            <option value="bangla-to-banglish">বাংলা → Banglish</option>
+                        </select>
+                        <button id="convertBtn" class="btn btn-primary ml-auto">Convert</button>
+                        <button id="clearBtn" class="btn btn-secondary">Clear</button>
+                    </div>
+                </div>
+                <div class="converter-col">
+                    <label for="outputText">Output</label>
+                    <textarea id="outputText" class="styled-textarea" placeholder="কনভার্ট হওয়া আউটপুট এখানে দেখা যাবে..." readonly></textarea>
+                    <div class="controls">
+                        <button id="copyBtn" class="btn btn-secondary">Copy</button>
+                        <button id="downloadBtn" class="btn btn-secondary">Download .txt</button>
+                        <span id="statusEl" class="status-text">Ready (Offline)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- অনলাইন ট্রান্সলেটর পেজ -->
+    <main id="translatorPage" class="tool-page hidden">
+        <div class="tool-container">
+            <h2>অনলাইন ট্রান্সলেটর (Gemini)</h2>
+            <div id="apiAreaTranslator" class="api-area mb-4">
+                <label>Gemini API Key (ট্রান্সলেটরের জন্য প্রয়োজন)</label>
+                <div class="api-input-group">
+                    <input id="apiKeyTranslator" type="password" placeholder="আপনার Gemini API কী এখানে পেস্ট করুন" class="styled-input">
+                    <button type="button" id="toggleApiVisibilityBtnTranslator" class="toggle-visibility-btn" aria-label="Toggle API Key Visibility">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16.5c4.3 0 8.1-2.6 10.3-6.5-.1-.4-.3-.7-.5-1C19.6 4.6 15.8 2 12 2S4.4 4.6 2.2 9c-.2.3-.4.6-.5 1 .1.2.2.4.3.6L4.5 14l1.6-1.6c-.2-.5-.3-1-.3-1.6 0-2.8 2.2-5 5-5 .6 0 1.2.1 1.7.4L14.4 8 16 6.4c-.7-.3-1.4-.4-2.2-.4-3.3 0-6.1 2.1-7.5 5.1C7.2 13.6 9.5 15 12 15c.6 0 1.2-.1 1.7-.2L12 16.5zm8.1-7.2c-.4.8-1 1.5-1.7 2.1l1.4 1.4c1.1-.9 2-2 2.6-3.2-.2-.4-.4-.7-.7-.9zM12 9c-1.7 0-3 1.3-3 3 0 .4.1.8.2 1.1l1.1-1.1c.3-.3.6-.4 1-.4.4 0 .8.2 1.1.5l1.5 1.5c.2-.3.3-.6.3-1 0-1.7-1.3-3-3-3z"/><path fill="none" d="M0 0h24v24H0z"/><path d="M2.3 3.7L3.7 2.3 21.7 20.3 20.3 21.7z"/></svg>
+                    </button>
+                    <button id="saveKeyBtnTranslator" class="btn btn-secondary">Save</button>
+                    <button id="clearKeyBtnTranslator" class="btn btn-secondary">Clear</button>
+                </div>
+            </div>
+            <div class="converter-grid mt-4">
+                <div class="converter-col">
+                    <label for="translatorInput">যেকোনো ভাষায় লিখুন</label>
+                    <textarea id="translatorInput" class="styled-textarea" placeholder="এখানে লিখুন..."></textarea>
+                    <div class="controls">
+                        <select id="sourceLang" class="styled-select">
+                            <option value="auto">Auto-Detect</option>
+                            <option value="bn">Bengali</option>
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="ar">Arabic</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="zh">Chinese</option>
+                        </select>
+                        <button id="translateBtn" class="btn btn-primary ml-auto">Translate</button>
+                    </div>
+                </div>
+                <div class="converter-col">
+                    <label for="translatorOutput">অনুবাদ</label>
+                    <textarea id="translatorOutput" class="styled-textarea" placeholder="অনুবাদ এখানে দেখা যাবে..." readonly></textarea>
+                    <div class="controls">
+                        <select id="targetLang" class="styled-select">
+                            <option value="bn">Bengali</option>
+                            <option value="en" selected>English</option>
+                            <option value="hi">Hindi</option>
+                            <option value="ar">Arabic</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="zh">Chinese</option>
+                        </select>
+                        <button id="copyBtnTranslator" class="btn btn-secondary ml-auto">Copy</button>
+                        <span id="statusElTranslator" class="status-text">Ready</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+    var Avro=function(){var r={'\u0995\u09CD\u09B7':'kkh','\u099E\u09CD\u099C':'gg','\u099C\u09CD\u099E':'gg','\u09A8\u09CD\u09A1':'nd','\u09A8\u09CD\u09A4':'nt','\u09A8\u09CD\u09A6':'nd','\u09B9\u09CD\u09AE':'hm','\u0995\u09CD\u09B8':'ks','\u09A4\u09CD\u09AC':'tb','\u09A4\u09CD\u09AE':'tm','\u09A4\u09CD\u09B0':'tr','\u09AD\u09CD\u09B0':'bhr','\u09AE\u09CD\u09B0':'mr','\u09AE\u09CD\u09AD':'mbh','\u09B0\u09CD\u09AF':'y','\u09B7\u09CD\u09A3':'shn','\u0999\u09CD\u0995':'ngk','\u0999\u09CD\u0996':'ngkh','\u0999\u09CD\u0997':'ngg','\u0999\u09CD\u0998':'nggh','\u0999\u09CD\u09AE':'ngm','\u099A\u09CD\u099B':'cch','\u099E\u09CD\u099A':'gch','\u099E\u09CD\u099B':'gch','\u099E\u09CD\u099D':'gjh','\u099F\u09CD\u099T':'tt','\u09A1\u09CD\u09A1':'dd','\u09A3\u09CD\u09A3':'nn','\u09A4\u09CD\u09A4':'tt','\u09A5\u09CD\u09A5':'thth','\u09A6\u09CD\u09A6':'dd','\u09A6\u09CD\u09AC':'db','\u09A6\u09CD\u09AD':'dbh','\u09A6\u09CD\u09AE':'dm','\u09A6\u09CD\u09AC':'db','\u09A8\u09CD\u09A8':'nn','\u09A8\u09CD\u09AC':'nb','\u09A8\u09CD\u09AE':'nm','\u09AA\u09CD\u09A4':'pt','\u09AA\u09CD\u09AA':'pp','\u09AA\u09CD\u09B8':'ps','\u09AC\u09CD\u09A6':'bd','\u09AC\u09CD\u099C':'bj','\u09AC\u09CD\u09A6':'bd','\u09AC\u09CD\u09A7':'bdh','\u09AC\u09CD\u09AC':'bb','\u09AD\u09CD\u09B2':'bl','\u09AE\u09CD\u09AE':'mm','\u09AE\u09CD\u09AA':'mp','\u09AE\u09CD\u09AB':'mph','\u09AE\u09CD\u09AC':'mb','\u09AE\u09CD\u09AD':'mbh','\u09AE\u09CD\u09B2':'ml','\u09B2\u09CD\u0995':'lk','\u09B2\u09CD\u0997':'lg','\u09B2\u09CD\u09A6':'ld','\u09B2\u09CD\u09A5':'lth','\u09B2\u09CD\u09A1':'ld','\u09B2\u09CD\u09AC':'lb','\u09B2\u09CD\u09B2':'ll','\u09B6\u09CD\u099A':'shch','\u09B6\u09CD\u09B0':'shr','\u09B6\u09CD\u09B2':'shl','\u09B7\u09CD\u0995':'shk','\u09B7\u09CD\u099F':'sht','\u09B7\u09CD\u09A0':'shth','\u09B7\u09CD\u09AA':'shp','\u09B7\u09CD\u09AB':'shph','\u09B7\u09CD\u09AE':'shm','\u09B8\u09CD\u0995':'sk','\u09B8\u09CD\u0996':'skh','\u09B8\u09CD\u099F':'st','\u09B8\u09CD\u09A4':'st','\u09B8\u09CD\u09A5':'sth','\u09B8\u09CD\u09A8':'sn','\u09B8\u09CD\u09AA':'sp','\u09B8\u09CD\u09AB':'sph','\u09B8\u09CD\u09AC':'sb','\u09B8\u09CD\u09AE':'sm','\u09B8\u09CD\u09B2':'sl','\u099E\u09CD':'g',"\u099C\u09CD":'j',"\u0997\u09CD":'g',"\u0998\u09CD":'gh',"\u0999\u09CD":'ng',"\u099A\u09CD":'ch',"\u099B\u09CD":'ch',"\u099D\u09CD":'jh',"\u099F\u09CD":'t',"\u09A0\u09CD":'th',"\u09A1\u09CD":'d',"\u09A2\u09CD":'dh',"\u09A3\u09CD":'n',"\u09A4\u09CD":'t',"\u09A5\u09CD":'th',"\u09A6\u09CD":'d',"\u09A7\u09CD":'dh',"\u09A8\u09CD":'n',"\u09AA\u09CD":'p',"\u09AB\u09CD":'ph',"\u09AC\u09CD":'b',"\u09AD\u09CD":'bh',"\u09AE\u09CD":'m',"\u09AF\u09CD":'y',"\u09AC\u09BC":'w',"\u09B0\u09CD":'r',"\u09B2\u09CD":'l',"\u09B6\u09CD":'sh',"\u09B7\u09CD":'sh',"\u09B8\u09CD":'s',"\u09B9\u09CD":'h',"\u09CE":'t',"\u0981":'cnd',"\u0982":'ng',"\u0983":'h',"\u09BE":'a',"\u09BF":'i',"\u09C0":'i',"\u09C1":'u',"\u09C2":'u',"\u09C3":'ri',"\u09C7":'e',"\u09C8":'oi',"\u09CB":'o',"\u09CC":'ou',"\u09D7":'u',"\u09BC":'w',"\u0995":'k',"\u0996":'kh',"\u0997":'g',"\u0998":'gh',"\u0999":'ng',"\u099A":'ch',"\u099B":'c',"\u099C":'j',"\u099D":'jh',"\u099E":'gc',"\u099F":'t',"\u09A0":'th',"\u09A1":'d',"\u09A2":'dh',"\u09A3":'n',"\u09A4":'t',"\u09A5":'th',"\u09A6":'d',"\u09A7":'dh',"\u09A8":'n',"\u09AA":'p',"\u09AB":'ph',"\u09AC":'b',"\u09AD":'bh',"\u09AE":'m',"\u09AF":'j',"\u09B0":'r',"\u09B2":'l',"\u09B6":'sh',"\u09B7":'sh',"\u09B8":'s',"\u09B9":'h',"\u09A1\u09BC":'r',"\u09A2\u09BC":'r',"\u0985":'o',"\u0986":'a',"\u0987":'i',"\u0988":'i',"\u0989":'u',"\u098A":'u',"\u098B":'ri',"\u098F":'e',"\u0990":'oi',"\u0993":'o',"\u0994":'ou',"\u09E6":'0',"\u09E7":'1',"\u09E8":'2',"\u09E9":'3',"\u09EA":'4',"\u09EB":'5',"\u09EC":'6',"\u09ED":'7',"\u09EE":'8',"\u09EF":'9',"\u0964":"|"};var t={"i":"\u09BF","I":"\u09C0","e":"\u09C7","E":"\u09C8","u":"\u09C1","U":"\u09C2","o":"\u09CB","O":"\u09CC","a":"\u09BE","A":"\u09BE","r":"\u09B0","R":"\u09DC","Rh":"\u09DD","n":"\u09A8","N":"\u09A3","t":"\u09A4","T":"\u099F","d":"\u09A6","D":"\u09A1","s":"\u09B8","S":"\u09B7","sh":"\u09B6","z":"\u09AF","Z":"\u09AF","x":"\u0995\u09CD\u09B8","y":"\u09DF","Y":"\u09DF","w":"\u09AC\u09BC","W":"\u09AC\u09BC","c":"\u099A","C":"\u099A","j":"\u099C","J":"\u099D","g":"\u0997","G":"\u0998","k":"\u0995","K":"\u0996","h":"\u09B9","H":"\u09B9","p":"\u09AA","P":"\u09AB","f":"\u09AB","F":"\u09AB","b":"\u09AC","B":"\u09AD","v":"\u09AD","V":"\u09AD","m":"\u09AE","M":"\u09AE","l":"\u09B2","L":"\u09B2","q":"\u0995","Q":"\u0995","Vowel":['a','A','i','I','e','E','u','U','o','O'],"VowelChar":['\u09BE','\u09BF','\u09C0','\u09C7','\u09C8','\u09C1','\u09C2','\u09CB','\u09CC'],"Consonant":['k','K','g','G','c','C','j','J','t','T','d','D','n','N','p','P','f','F','b','B','v','V','m','M','z','Z','r','R','l','L','s','S','h','H','sh','ssh','ssH','sH','Sh','SH','w','W','y','Y','q','Q','x'],"ConsonantChar":['\u0995','\u0996','\u0997','\u0998','\u099A','\u099B','\u099C','\u099D','\u099F','\u09A0','\u09A1','\u09A2','\u09A8','\u09A3','\u09AA','\u09AB','\u09AC','\u09AD','\u09AE','\u09AF','\u09B0','\u09DC','\u09DD','\u09B2','\u09B8','\u09B7','\u09B6','\u09B9','\u09AC\u09BC','\u09DF'],"Symbols":['o','O','i','I','e','E','u','U','a','A','r','R','Rh','n','N','t','T','d','D','s','S','sh','z','Z','x','y','Y','w','W','c','C','j','J','g','G','k','K','h','H','p','P','f','F','b','B','v','V','m','M','l','L','q','Q',],"\u098B":"rri","\u09C3":"rri","\u0981":"^","\u0982":"ng","\u0983":"h","\u0985":"o","\u0986":"a","\u0987":"i","\u0988":"I","\u0989":"u","\u098A":"U","\u098F":"e","\u0990":"E","\u0993":"o","\u0994":"O","\u0995":"k","\u0996":"K","\u0997":"g","\u0998":"G","\u099A":"c","\u099B":"C","\u099C":"j","\u099D":"J","\u099E":"NG","\u099F":"T","\u09A0":"Th","\u09A1":"D","\u09A2":"Dh","\u09A3":"N","\u09A4":"t","\u09A5":"th","\u09A6":"d","\u09A7":"dh","\u09A8":"n","\u09AA":"p","\u09AB":"f","\u09AC":"b","\u09AD":"v","\u09AE":"m","\u09AF":"z","\u09B0":"r","\u09B2":"l","\u09B6":"sh","\u09B7":"S","\u09B8":"s","\u09B9":"h","\u099C\u09CD\u099E":"gg","\u0995\u09CD\u09B7":"kkh","\u09A1\u09BC":"R","\u09A2\u09BC":"Rh","\u09DF":"Y","\u09CE":"t\u09CD","\u09DC":"R","\u09DD":"Rh","\u0964":"|","\u0965":".","\u09E6":"0","\u09E7":"1","\u09E8":"2","\u09E9":"3","\u09EA":"4","\u09EB":"5","\u09EC":"6","\u09ED":"7","\u09EE":"8","\u09EF":"9"};var a={"o":"\u0985","O":"\u0993","i":"\u0987","I":"\u0988","e":"\u098F","E":"\u0990","u":"\u0989","U":"\u098A","a":"\u0986","A":"\u0986","rri":"\u098B","k":"\u0995","K":"\u0996","kh":"\u0996","g":"\u0997","G":"\u0998","gh":"\u0998","c":"\u099A","C":"\u099B","ch":"\u099A","Ch":"\u099B","chh":"\u099B","j":"\u099C","J":"\u099D","jh":"\u099D","z":"\u099C","Z":"\u099D","NG":"\u099E","t":"\u099F","T":"\u09A4","Th":"\u09A0","th":"\u09A5","d":"\u09A1","D":"\u09A6","dh":"\u09A7","Dh":"\u09A2","n":"\u09A8","N":"\u09A3","p":"\u09AA","P":"\u09AB","f":"\u09AB","F":"\u09AB","b":"\u09AC","B":"\u09AD","v":"\u09AD","V":"\u09AD","bh":"\u09AD","m":"\u09AE","M":"\u09AE","y":"\u09DF","Y":"\u09AF","j":"\u09AF","J":"\u09AF","r":"\u09B0","R":"\u09DC","Rh":"\u09DD","l":"\u09B2","L":"\u09B2","sh":"\u09B6","S":"\u09B7","s":"\u09B8","H":"\u09B9","h":"\u09B9","OI":"\u0990","OU":"\u0994","Ou":"\u0994","kkh":"\u0995\u09CD\u09B7","kSh":"\u0995\u09CD\u09B7","kSH":"\u0995\u09CD\u09B7","ksh":"\u0995\u09CD\u09B7","kS":"\u0995\u09CD\u09B7","gg":"\u099C\u09CD\u099E","jN":"\u099C\u09CD\u099E","gG":"\u099C\u09CD\u099E","jG":"\u099C\u09CD\u099E","t\u09CD":"\u09CE","0":"\u09E6","1":"\u09E7","2":"\u09E8","3":"\u09E9","4":"\u09EA","5":"\u09EB","6":"\u09EC","7":"\u09ED","8":"\u09EE","9":"\u09EF","^":"\u0981","ng":"\u0982","h":"\u0983","|":"\u0964",".":"\u0965","..":"."};var e={};var o=function(r,t,a,e){var o=r.substr(0,t);var n=r.substr(t+a);var c=r.substr(t,a);return o+e+n};var n=function(r,a){for(var e in a){var o=new RegExp(e,"g");r=r.replace(o,a[e])}return r};var c=function(r){var e="^"+n(r,{"o":"\u0985","O":"\u0993","i":"\u0987","I":"\u0988","e":"\u098F","E":"\u0990","u":"\u0989","U":"\u098A","a":"\u0986","A":"\u0986","rri":"\u098B","k":"\u0995","K":"\u0996","kh":"\u0996","g":"\u0997","G":"\u0998","gh":"\u0998","c":"\u099A","C":"\u099B","ch":"\u099A","Ch":"\u099B","chh":"\u099B","j":"\u099C","J":"\u099D","jh":"\u099D","z":"\u099C","Z":"\u099D","NG":"\u099E","t":"\u099F","T":"\u09A4","Th":"\u09A0","th":"\u09A5","d":"\u09A1","D":"\u09A6","dh":"\u09A7","Dh":"\u09A2","n":"\u09A8","N":"\u09A3","p":"\u09AA","P":"\u09AB","f":"\u09AB","F":"\u09AB","b":"\u09AC","B":"\u09AD","v":"\u09AD","V":"\u09AD","bh":"\u09AD","m":"\u09AE","M":"\u09AE","y":"\u09DF","Y":"\u09AF","j":"\u09AF","J":"\u09AF","r":"\u09B0","R":"\u09DC","Rh":"\u09DD","l":"\u09B2","L":"\u09B2","sh":"\u09B6","S":"\u09B7","s":"\u09B8","H":"\u09B9","h":"\u09B9","OI":"\u0990","OU":"\u0994","Ou":"\u0994","kkh":"\u0995\u09CD\u09B7","kSh":"\u0995\u09CD\u09B7","kSH":"\u0995\u09CD\u09B7","ksh":"\u0995\u09CD\u09B7","kS":"\u0995\u09CD\u09B7","gg":"\u099C\u09CD\u099E","jN":"\u099C\u09CD\u099E","gG":"\u099C\u09CD\u099E","jG":"\u099C\u09CD\u099E","t\u09CD":"\u09CE","0":"\u09E6","1":"\u09E7","2":"\u09E8","3":"\u09E9","4":"\u09EA","5":"\u09EB","6":"\u09EC","7":"\u09ED","8":"\u09EE","9":"\u09EF","^":"\u0981","ng":"\u0982","h":"\u0983","|":"\u0964",".":"\u0965","..":"."});var c=new RegExp(e);if(r.match(c)){r=r.replace(c,a[r])}return r};var u=function(r){var e=""+r;var n=e.length;var c=false;for(var u=0;u<n;u++){if(u>1){var l=e.substr(u-2,3);if(t.Consonant.indexOf(l)!=-1){e=o(e,u-2,3,t[l]+"\u09CD");n-=2;u-=2;c=true;continue}}if(u>0){var h=e.substr(u-1,2);if(t.Consonant.indexOf(h)!=-1){e=o(e,u-1,2,t[h]+"\u09CD");n--;u--;c=true;continue}}var f=e.substr(u,1);if(t.Consonant.indexOf(f)!=-1){e=o(e,u,1,t[f]+"\u09CD");n++;u++;c=true;continue}var v=e.substr(u,1);if(t.Vowel.indexOf(v)!=-1){if(c||u==0&&n>1){e=o(e,u,1,t[v])}else{e=o(e,u,1,a[v])}c=false;continue}var b=e.substr(u,1);if(t.Symbols.indexOf(b)!=-1){e=o(e,u,1,a[b]);c=false}}e=e.replace(/undefined/g,"");return e};var l=function(r,t){var a=r;var n=a.match(/H/g);if(n){if(n.length==1){a=a.replace("H","\u0983")}else{a=a.replace("H","\u09B9")}}a=a.replace(/o/g,"\u0985");a=u(a);a=a.replace(/\u09CDo/g,"");a=a.replace(/\u09CD$/, "");a=a.replace(/\u09CD(?=[\s.,|])/,"");a=c(a);a=c(a);var l=e[a];if(l){a=l}return a};var h={};h.Convert=function(r){return n(r,t)};h.Reverse=function(t){var a="";var o=t.length;for(var c=0;c<o;c++){var u=t.substr(c,2);if(r[u]){a+=r[u];c++}else{u=t.substr(c,1);if(r[u]){a+=r[u]}else{a+=u}}}return a};var f={};f.Convert=function(r){var e=r;e=l(e);return e};f.Reverse=function(r){return n(r,a)};return{ConvertBanglishToUnicode:function(r){return l(r,true)},ConvertUnicodeToBanglish:function(t){var a="";var o=t.length;for(var n=0;n<o;n++){var c=t.substr(n,2);if(r[c]){a+=r[c];n++}else{c=t.substr(n,1);if(r[c]){a+=r[c]}else{a+=c}}}return a}}}();
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const docHtml = document.documentElement;
+
+        // --- কাস্টম নোটিফিকেশন সিস্টেম ---
+        const notificationOverlay = document.getElementById('notificationOverlay');
+        const notificationModal = document.getElementById('notificationModal');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const notificationCloseBtn = document.getElementById('notificationCloseBtn');
+
+        function showNotification(message, title = 'সফল!', type = 'success') {
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            notificationModal.className = 'notification-modal ' + type;
+            notificationOverlay.classList.add('visible');
+        }
+        notificationCloseBtn.addEventListener('click', () => notificationOverlay.classList.remove('visible'));
+        notificationOverlay.addEventListener('click', (e) => {
+            if (e.target === notificationOverlay) {
+                notificationOverlay.classList.remove('visible');
+            }
+        });
+
+        // --- Page Elements ---
+        const hubPage = document.getElementById('hubPage');
+        const converterPage = document.getElementById('converterPage');
+        const translatorPage = document.getElementById('translatorPage');
+
+        // --- Header Elements ---
+        const headerBackBtn = document.getElementById('headerBackBtn');
+        const headerTitle = document.getElementById('headerTitle');
+        const headerToolName = document.getElementById('headerToolName');
+
+        // --- Page Navigation Buttons ---
+        const navToConverter = document.getElementById('navToConverter');
+        const navToTranslator = document.getElementById('navToTranslator');
+
+        // --- Drawer Elements ---
+        const openDrawerBtn = document.getElementById('openDrawerBtn');
+        const drawerMenu = document.getElementById('drawerMenu');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        const adminImage = document.getElementById('adminImage');
+
+        // ===================================
+        // === থিম টগল (ডার্ক/লাইট) লজিক ===
+        // ===================================
+        const themeToggle = document.getElementById('themeToggle');
+        const themeToggleLabel = document.getElementById('themeToggleLabel');
+
+        function setTheme(theme) {
+            if (theme === 'light') {
+                docHtml.classList.remove('dark');
+                docHtml.classList.add('light');
+                themeToggle.checked = true;
+                themeToggleLabel.textContent = 'ডার্ক মোড';
+            } else {
+                docHtml.classList.remove('light');
+                docHtml.classList.add('dark');
+                themeToggle.checked = false;
+                themeToggleLabel.textContent = 'লাইট মোড';
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(currentTheme);
+
+        themeToggle.addEventListener('change', () => {
+            setTheme(themeToggle.checked ? 'light' : 'dark');
+        });
+
+        // ===================================
+        // === অ্যাডমিন ইমেজ ক্যাশিং লজিক ===
+        // ===================================
+        const adminImageUrl = 'https://i.ibb.co.com/Zp3CRLk3/Shamim-Picture.png';
+
+        async function cacheAdminImage(url) {
+            try {
+                const cachedImage = localStorage.getItem('adminImageBase64');
+                if (cachedImage) {
+                    adminImage.src = cachedImage;
+                } else {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Image fetch failed');
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        const base64data = reader.result;
+                        localStorage.setItem('adminImageBase64', base64data);
+                        adminImage.src = base64data;
+                    };
+                }
+            } catch (e) {
+                console.error('Image caching failed:', e);
+                adminImage.src = 'https://via.placeholder.com/100';
+            }
+        }
+        cacheAdminImage(adminImageUrl);
+
+        // ===================================
+        // === ড্রয়ার মেনু লজিক ===
+        // ===================================
+        function openDrawer() {
+            drawerMenu.classList.add('open');
+            drawerOverlay.classList.add('open');
+        }
+        function closeDrawer() {
+            drawerMenu.classList.remove('open');
+            drawerOverlay.classList.remove('open');
+        }
+        openDrawerBtn.addEventListener('click', openDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        // ===================================
+        // === পেজ নেভিগেশন লজিক ===
+        // ===================================
+        function showPage(pageId) {
+            hubPage.classList.add('hidden');
+            converterPage.classList.add('hidden');
+            translatorPage.classList.add('hidden');
+
+            const page = document.getElementById(pageId);
+            if (page) {
+                page.classList.remove('hidden');
+            }
+
+            if (pageId === 'hubPage') {
+                headerTitle.classList.remove('hidden');
+                headerToolName.classList.add('hidden');
+                headerBackBtn.classList.add('hidden');
+            } else {
+                headerTitle.classList.add('hidden');
+                headerToolName.classList.remove('hidden');
+                headerBackBtn.classList.remove('hidden');
+
+                if (pageId === 'converterPage') {
+                    headerToolName.textContent = 'বাংলিশ কনভার্টার';
+                } else if (pageId === 'translatorPage') {
+                    headerToolName.textContent = 'অনলাইন ট্রান্সলেটর';
+                    syncApiKeys();
+                    checkTranslatorApiKey();
+                }
+            }
+            closeDrawer();
+            window.scrollTo(0, 0);
+        }
+        navToConverter.addEventListener('click', () => showPage('converterPage'));
+        navToTranslator.addEventListener('click', () => showPage('translatorPage'));
+        headerBackBtn.addEventListener('click', () => showPage('hubPage'));
+
+        // ===================================
+        // === API কী ম্যানেজমেন্ট (সিঙ্ক) ===
+        // ===================================
+        const apiKey = document.getElementById('apiKey');
+        const apiKeyTranslator = document.getElementById('apiKeyTranslator');
+
+        function syncApiKeys() {
+            const key = localStorage.getItem('gemini_api_key') || '';
+            apiKey.value = key;
+            apiKeyTranslator.value = key;
+        }
+
+        function saveKey(key) {
+            if (!key) {
+                showNotification('API key খালি।', 'ত্রুটি', 'error');
+                return;
+            }
+            localStorage.setItem('gemini_api_key', key);
+            syncApiKeys();
+            showNotification('API Key সফলভাবে সেভ করা হয়েছে।');
+        }
+
+        function clearKey() {
+            localStorage.removeItem('gemini_api_key');
+            syncApiKeys();
+            showNotification('API Key মুছে ফেলা হয়েছে।');
+        }
+
+        document.getElementById('saveKeyBtn').addEventListener('click', () => saveKey(apiKey.value.trim()));
+        document.getElementById('clearKeyBtn').addEventListener('click', clearKey);
+        document.getElementById('saveKeyBtnTranslator').addEventListener('click', () => saveKey(apiKeyTranslator.value.trim()));
+        document.getElementById('clearKeyBtnTranslator').addEventListener('click', clearKey);
+        syncApiKeys();
+
+        // ===================================
+        // === API কী ভিজিবিলিটি টগল ===
+        // ===================================
+        const toggleApiVisibilityBtn = document.getElementById('toggleApiVisibilityBtn');
+        const toggleApiVisibilityBtnTranslator = document.getElementById('toggleApiVisibilityBtnTranslator');
+
+        const eyeOpenSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5C21.3 7.6 17 4.5 12 4.5zm0 10c-2.5 0-4.5-2-4.5-4.5S9.5 5.5 12 5.5s4.5 2 4.5 4.5-2 4.5-4.5 4.5zm0-7C10.6 7.5 9.5 8.6 9.5 10s1.1 2.5 2.5 2.5 2.5-1.1 2.5-2.5S13.4 7.5 12 7.5z"/></svg>`;
+        const eyeClosedSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 16.5c4.3 0 8.1-2.6 10.3-6.5-.1-.4-.3-.7-.5-1C19.6 4.6 15.8 2 12 2S4.4 4.6 2.2 9c-.2.3-.4.6-.5 1 .1.2.2.4.3.6L4.5 14l1.6-1.6c-.2-.5-.3-1-.3-1.6 0-2.8 2.2-5 5-5 .6 0 1.2.1 1.7.4L14.4 8 16 6.4c-.7-.3-1.4-.4-2.2-.4-3.3 0-6.1 2.1-7.5 5.1C7.2 13.6 9.5 15 12 15c.6 0 1.2-.1 1.7-.2L12 16.5zm8.1-7.2c-.4.8-1 1.5-1.7 2.1l1.4 1.4c1.1-.9 2-2 2.6-3.2-.2-.4-.4-.7-.7-.9zM12 9c-1.7 0-3 1.3-3 3 0 .4.1.8.2 1.1l1.1-1.1c.3-.3.6-.4 1-.4.4 0 .8.2 1.1.5l1.5 1.5c.2-.3.3-.6.3-1 0-1.7-1.3-3-3-3z"/><path fill="none" d="M0 0h24v24H0z"/><path d="M2.3 3.7L3.7 2.3 21.7 20.3 20.3 21.7z"/></svg>`;
+
+        function toggleVisibility(inputField, button) {
+            if (inputField.type === 'password') {
+                inputField.type = 'text';
+                button.innerHTML = eyeOpenSVG;
+            } else {
+                inputField.type = 'password';
+                button.innerHTML = eyeClosedSVG;
+            }
+        }
+
+        toggleApiVisibilityBtn.addEventListener('click', () => toggleVisibility(apiKey, toggleApiVisibilityBtn));
+        toggleApiVisibilityBtnTranslator.addEventListener('click', () => toggleVisibility(apiKeyTranslator, toggleApiVisibilityBtnTranslator));
+
+
+        // ===================================
+        // === টুল ১: বাংলিশ কনভার্টার লজিক ===
+        // ===================================
+        const offlineBtn = document.getElementById('offlineBtn');
+        const onlineBtn = document.getElementById('onlineBtn');
+        const apiArea = document.getElementById('apiArea');
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const convertBtn = document.getElementById('convertBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const direction = document.getElementById('direction');
+        const statusEl = document.getElementById('statusEl');
+
+        let currentMode = 'offline';
+
+        function setMode(mode) {
+            currentMode = mode;
+            if (mode === 'online') {
+                apiArea.classList.remove('hidden');
+                onlineBtn.classList.add('btn-primary');
+                onlineBtn.classList.remove('btn-secondary');
+                offlineBtn.classList.add('btn-secondary');
+                offlineBtn.classList.remove('btn-primary');
+                statusEl.textContent = 'Ready (Online)';
+            } else {
+                apiArea.classList.add('hidden');
+                offlineBtn.classList.add('btn-primary');
+                offlineBtn.classList.remove('btn-secondary');
+                onlineBtn.classList.add('btn-secondary');
+                onlineBtn.classList.remove('btn-primary');
+                statusEl.textContent = 'Ready (Offline)';
+            }
+        }
+        offlineBtn.addEventListener('click', () => setMode('offline'));
+        onlineBtn.addEventListener('click', () => setMode('online'));
+
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.value = '';
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!outputText.value) return;
+            navigator.clipboard.writeText(outputText.value)
+                .then(() => showNotification('টেক্সট ক্লিপবোর্ডে কপি করা হয়েছে!'))
+                .catch(() => showNotification('কপি করা সম্ভব হয়নি।', 'ত্রুটি', 'error'));
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!outputText.value) return;
+            try {
+                const blob = new Blob([outputText.value], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'output.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                showNotification('ফাইল ডাউনলোড করা সম্ভব হয়নি।', 'ত্রুটি', 'error');
+            }
+        });
+
+        convertBtn.addEventListener('click', runConversion);
+        inputText.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') { runConversion(); }
+        });
+
+        async function runConversion() {
+            const txt = inputText.value.trim();
+            if (!txt) {
+                showNotification('ইনপুট বক্সে কিছু লিখুন।', 'সতর্কতা', 'error');
+                return;
+            }
+            const dir = direction.value;
+
+            if (currentMode === 'online') {
+                const key = localStorage.getItem('gemini_api_key');
+                if (!key) {
+                    showNotification('অনলাইন মোডের জন্য API Key সেভ করা প্রয়োজন।', 'সতর্কতা', 'error');
+                    return;
+                }
+                await convertOnline(txt, dir, key);
+            } else {
+                statusEl.textContent = 'Converting (Offline)...';
+                const convertedText = convertOffline(txt, dir);
+                outputText.value = convertedText;
+                statusEl.textContent = outputText.value ? 'Done (Offline)' : 'Error (Offline)';
+            }
+        }
+
+        function convertOffline(text, dir) {
+            try {
+                if (dir === 'banglish-to-bangla') {
+                    return Avro.ConvertBanglishToUnicode(text);
+                } else {
+                    return Avro.ConvertUnicodeToBanglish(text);
+                }
+            } catch (e) {
+                console.error("Avro Error:", e);
+                showNotification('অফলাইন কনভার্ট সম্ভব হয়নি।', 'ত্রুটি', 'error');
+                return text;
+            }
+        }
+
+        async function convertOnline(promptText, directionValue, apiKey) {
+            statusEl.textContent = 'Converting (Online)...';
+            let instruction = '';
+            if (directionValue === 'banglish-to-bangla') {
+                instruction = `Convert the following Romanized Bengali (Banglish) text into correct Bengali script. Preserve punctuation. Output only the converted Bengali text. Input:\n\n${promptText}`;
+            } else {
+                instruction = `Convert the following Bengali script text into Romanized Bengali (Banglish) in a clear, readable phonetic form. Preserve punctuation. Output only the converted text. Input:\n\n${promptText}`;
+            }
+
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+            const body = {
+                "contents": [{
+                    "parts": [{ "text": instruction }]
+                }],
+                 "generationConfig": { "temperature": 0.2, "maxOutputTokens": 1024 }
+            };
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData?.error?.message || `HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                const output = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+
+                if (!output) {
+                     throw new Error(data.promptFeedback?.blockReason ? `Blocked: ${data.promptFeedback.blockReason}` : 'API response was empty.');
+                }
+
+                outputText.value = output;
+                statusEl.textContent = 'Done (Online)';
+            } catch (err) {
+                console.error(err);
+                showNotification('অনলাইন কনভার্ট সম্ভব হয়নি: ' + err.message, 'ত্রুটি', 'error');
+                statusEl.textContent = 'Error (Online)';
+            }
+        }
+
+        // ===================================
+        // === টুল ২: অনলাইন ট্রান্সলেটর লজিক ===
+        // ===================================
+        const translatorInput = document.getElementById('translatorInput');
+        const translatorOutput = document.getElementById('translatorOutput');
+        const sourceLang = document.getElementById('sourceLang');
+        const targetLang = document.getElementById('targetLang');
+        const translateBtn = document.getElementById('translateBtn');
+        const copyBtnTranslator = document.getElementById('copyBtnTranslator');
+        const statusElTranslator = document.getElementById('statusElTranslator');
+        const apiAreaTranslator = document.getElementById('apiAreaTranslator');
+
+        function checkTranslatorApiKey() {
+            const key = localStorage.getItem('gemini_api_key');
+            const isKeyPresent = !!key;
+            apiAreaTranslator.classList.toggle('hidden', isKeyPresent);
+            statusElTranslator.textContent = isKeyPresent ? 'Ready' : 'API Key প্রয়োজন';
+            return key;
+        }
+
+        copyBtnTranslator.addEventListener('click', () => {
+            if (!translatorOutput.value) return;
+            navigator.clipboard.writeText(translatorOutput.value)
+                .then(() => showNotification('টেক্সট ক্লিপবোর্ডে কপি করা হয়েছে!'))
+                .catch(() => showNotification('কপি করা সম্ভব হয়নি।', 'ত্রুটি', 'error'));
+        });
+
+        translateBtn.addEventListener('click', async () => {
+            const key = checkTranslatorApiKey();
+            if (!key) {
+                showNotification('ট্রান্সলেট করার জন্য API Key সেভ করা প্রয়োজন।', 'সতর্কতা', 'error');
+                return;
+            }
+
+            const txt = translatorInput.value.trim();
+            if (!txt) {
+                showNotification('ইনপুট বক্সে কিছু লিখুন।', 'সতর্কতা', 'error');
+                return;
+            }
+
+            const source = sourceLang.value === 'auto' ? 'auto-detect' : sourceLang.options[sourceLang.selectedIndex].text;
+            const target = targetLang.options[targetLang.selectedIndex].text;
+
+            if (source === target && source !== 'auto-detect') {
+                translatorOutput.value = txt;
+                return;
+            }
+
+            statusElTranslator.textContent = 'Translating...';
+            let instruction = `Translate the following text from ${source} to ${target}. Output only the translated text.\n\n${txt}`;
+             if (source === 'auto-detect') {
+                instruction = `Detect the language of the following text and then translate it to ${target}. Output only the translated text.\n\n${txt}`;
+            }
+
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`;
+            const body = {
+                "contents": [{
+                    "parts": [{ "text": instruction }]
+                }],
+                 "generationConfig": { "temperature": 0.2, "maxOutputTokens": 1024 }
+            };
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData?.error?.message || `HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                const output = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+                 if (!output) {
+                     throw new Error(data.promptFeedback?.blockReason ? `Blocked: ${data.promptFeedback.blockReason}` : 'API response was empty.');
+                }
+                translatorOutput.value = output;
+                statusElTranslator.textContent = 'Done';
+            } catch (err) {
+                console.error(err);
+                showNotification('ট্রান্সলেট করা সম্ভব হয়নি: ' + err.message, 'ত্রুটি', 'error');
+                statusElTranslator.textContent = 'Error';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
